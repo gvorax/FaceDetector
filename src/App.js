@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import './App.css';
 import Navigation from './component/Navigation/Navigation';
+import SignIn from './component/SignIn/SignIn';
+import Register from './component/Register/Register';
 import FaceRecognition from './component/FaceRecognition/FaceRecognition';
 import Logo from './component/Logo/Logo';
 import ImageForm from './component/ImageForm/ImageForm';
@@ -41,7 +43,9 @@ class App extends Component {
     this.state={
       input:'',
       imageUrl:'',
-      box:{ }
+      box:{ },
+      route:'signin',
+      isSignedIn:false
     }
   }
 
@@ -76,19 +80,38 @@ class App extends Component {
         .catch(err => console.log(err));  
  };
 
+ onRouteChange = (route) =>{
+   if (route === 'signout') {
+     this.setState({isSignedIn:false})
+   }else if(route === 'home'){
+     this.setState({isSignedIn:true})
+   }
+   this.setState({ route:route })
+ }
+
 
   render(){
+    const {isSignedIn,box,imageUrl,route} = this.state;
     return (
       <div className="App">
         <Particles className="particless" params={Particless} />
-        <Navigation/>
-        <Logo/>
-        <Rank/>
-        <ImageForm 
-            onInputChange={this.onInputChange}
-            onButtonSubmit={this.onButtonSubmit}
-        />
-        <FaceRecognition box={this.state.box} imageUrl={this.state.imageUrl}/>
+        <Navigation isSignedIn={isSignedIn} onRouteChange={this.onRouteChange}/>
+        {this.state.route === 'home' 
+          ? <div>
+              <Logo/>
+              <Rank/>
+              <ImageForm 
+                  onInputChange={this.onInputChange}
+                  onButtonSubmit={this.onButtonSubmit}
+              />
+              <FaceRecognition box={box} imageUrl={imageUrl}/>
+            </div>
+          : (
+              route === 'signin' || route === 'signout'
+              ?<SignIn onRouteChange = {this.onRouteChange}/>
+              :<Register onRouteChange = {this.onRouteChange}/>
+            )
+        } 
       </div>
     );
   }
