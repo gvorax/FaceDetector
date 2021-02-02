@@ -8,11 +8,7 @@ import Logo from './component/Logo/Logo';
 import ImageForm from './component/ImageForm/ImageForm';
 import Rank from './component/Rank/Rank';
 import Particles from 'react-particles-js';
-import Clarifai from 'clarifai';
 
-const app = new Clarifai.App({
-  apiKey:'a214d33f97c2483f9447aa912793d5c9' 
-})
 const Particless ={
     particles: {
       number:{
@@ -36,24 +32,24 @@ const Particless ={
       retina_detect: true
     }
 }
-
+const initialState = {
+  input:'',
+  imageUrl:'',
+  box:{ },
+  route:'signin',
+  isSignedIn:false,
+  user:{
+    id:'',
+    name:'',
+    email:'',
+    entries:0,
+    joined:''
+  }
+}
 class App extends Component {
   constructor(){
     super();
-    this.state={
-      input:'',
-      imageUrl:'',
-      box:{ },
-      route:'signin',
-      isSignedIn:false,
-      user:{
-        id:'',
-        name:'',
-        email:'',
-        entreis:0,
-        joined:''
-      }
-    }
+    this.state=initialState
   }
 
   loadUser = (data) =>{
@@ -62,7 +58,7 @@ class App extends Component {
         id:data.id,
         name:data.name,
         email:data.email,
-        entries:data.entreis,
+        entries:data.entries,
         joined:data.joined
       }
     })
@@ -90,10 +86,14 @@ class App extends Component {
   }
   onButtonSubmit=() =>{
     this.setState({imageUrl:this.state.input});
-    app.models.predict(
-          Clarifai.FACE_DETECT_MODEL,
-          this.state.input
-        )
+    fetch('http://localhost:3000/imageUrl',{
+        method:'post',
+        headers:{'Content-type':'application/json'},
+        body:JSON.stringify({
+          input:this.state.input
+        })
+      })
+      .then(response=>response.json())
         .then(response =>{
           if(response)
           {
@@ -116,7 +116,7 @@ class App extends Component {
 
  onRouteChange = (route) =>{
    if (route === 'signout') {
-     this.setState({isSignedIn:false})
+     this.setState(initialState)
    }else if(route === 'home'){
      this.setState({isSignedIn:true})
    }
